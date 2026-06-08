@@ -186,8 +186,6 @@ public class ImobiliariaService {
                 9000, "ana@email.com", "(51) 99999-0001"));
         locatarios.add(new Locatario("L002", "Carlos Souza", "555.666.777-88",
                 4000, "carlos@email.com", "(51) 99999-0002"));
-
-        System.out.println("✔ Dados de demonstração carregados.");
     }
 
     public ArrayList<Imovel> getImoveis()       { return imoveis; }

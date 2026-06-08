@@ -34,9 +34,14 @@ public abstract class Imovel implements Calculavel {
 
     public String getDetalhes() {
         return String.format(
-                "ID: %s | Tipo: %s | Endereço: %s\n" +
-                        "  Aluguel: R$ %.2f | Cond.: R$ %.2f | IPTU: R$ %.2f\n" +
-                        "  Total mensal: R$ %.2f | Disponível: %s",
+                "ID: %s\n " +
+                "Tipo: %s\n" +
+                "Endereço: %s\n" +
+                "Aluguel: R$ %.2f\n" +
+                "Cond.: R$ %.2f\n" +
+                "IPTU: R$ %.2f\n" +
+                "Total mensal: R$ %.2f\n" +
+                "Disponível: %s\n",
                 id, getTipo(), endereco,
                 valorAluguel, valorCondominio, valorIptu,
                 calcularValorTotal(),

@@ -26,7 +26,10 @@ public class ImovelComercial extends Imovel {
     @Override
     public String getDetalhes() {
         return super.getDetalhes() + String.format(
-                "\n  Área: %.1f m² | Tipo comércio: %s | Estacionamento: %s | Salas: %d",
+                "\n  Área: %.1f m²\n" +
+                "Tipo comércio: %s\n" +
+                "Estacionamento: %s\n" +
+                "Salas: %d\n",
                 areaM2, tipoComercio, temEstacionamento ? "Sim" : "Não", numSalas
         );
     }

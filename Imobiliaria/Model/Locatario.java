@@ -27,9 +27,13 @@ public class Locatario {
 
     public String getDetalhes() {
         return String.format(
-                "ID: %s | Nome: %s | CPF: %s\n" +
-                        "  Renda: R$ %.2f | E-mail: %s | Tel: %s\n" +
-                        "  Histórico negativo: %s",
+                "ID: %s\n" +
+                "Nome: %s\n" +
+                "CPF: %s\n" +
+                "Renda: R$ %.2f\n" +
+                "E-mail: %s\n" +
+                "Tel: %s\n" +
+                "Histórico negativo: %s\n",
                 id, nome, cpf, rendaMensal, email, telefone,
                 possuiHistoricoNegativo ? "Sim ⚠" : "Não"
         );

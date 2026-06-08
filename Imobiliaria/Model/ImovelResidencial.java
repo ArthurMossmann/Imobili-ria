@@ -26,7 +26,10 @@ public class ImovelResidencial extends Imovel {
     @Override
     public String getDetalhes() {
         return super.getDetalhes() + String.format(
-                "\n  Quartos: %d | Garagem: %s | Bairro: %s | Área: %.1f m²",
+                "\n  Quartos: %d\n" +
+                "Garagem: %s\n" +
+                "Bairro: %s\n" +
+                "Área: %.1f m²\n",
                 numQuartos, temGaragem ? "Sim" : "Não", bairro, areaM2
         );
     }
