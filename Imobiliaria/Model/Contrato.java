@@ -1,5 +1,7 @@
 package Imobiliaria.Model;
 
+import Imobiliaria.User.Locatario;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 

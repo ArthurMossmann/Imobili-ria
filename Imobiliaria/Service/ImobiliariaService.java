@@ -1,6 +1,9 @@
 package Imobiliaria.Service;
 
 import Imobiliaria.Model.*;
+import Imobiliaria.User.Locatario;
+import Imobiliaria.User.Pessoa;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 
@@ -9,6 +12,7 @@ public class ImobiliariaService {
     private ArrayList<Imovel> imoveis = new ArrayList<>();
     private ArrayList<Locatario> locatarios = new ArrayList<>();
     private ArrayList<Contrato> contratos = new ArrayList<>();
+    private ArrayList<Pessoa> pessoa = new ArrayList<>();
 
     // IMÓVEIS
 
@@ -66,6 +70,22 @@ public class ImobiliariaService {
     // ─────────────────────────────────────────
     // LOCATÁRIOS
     // ─────────────────────────────────────────
+
+    public void adicionarPessoa(Pessoa pes) {
+        pessoa.add(pes);
+        System.out.println("✔ Pessoa [" + pes.getNome() + "] cadastrado com sucesso.");
+    }
+
+    public Pessoa buscarPessoaPorCPF(String cpf) {
+        for (Pessoa p : Pessoa) {
+            if (p.getCPF().equalsIgnoreCase(cpf)) return p;
+        }
+        return null;
+    }
+
+    public boolean removerPessoa(String CPF) {
+        pessoa p = buscarLocatarioPorId()
+    }
 
     public void adicionarLocatario(Locatario loc) {
         locatarios.add(loc);
@@ -175,20 +195,35 @@ public class ImobiliariaService {
     // ─────────────────────────────────────────
 
     public void carregarDadosDemo() {
-        imoveis.add(new ImovelResidencial("I001", "Rua das Flores, 123", 2000, 400, 150,
-                3, true, "Centro", 85.0));
-        imoveis.add(new ImovelResidencial("I002", "Av. Brasil, 456", 3500, 600, 200,
-                4, false, "Jardins", 120.0));
-        imoveis.add(new ImovelComercial("I003", "Rua do Comércio, 789", 5000, 800, 300,
-                200.0, "Escritório", true, 8));
 
-        locatarios.add(new Locatario("L001", "Ana Silva", "111.222.333-44",
-                9000, "ana@email.com", "(51) 99999-0001"));
-        locatarios.add(new Locatario("L002", "Carlos Souza", "555.666.777-88",
-                4000, "carlos@email.com", "(51) 99999-0002"));
+        Locatario lucas = new Locatario(
+                "L001",
+                "Lucas",
+                19,
+                "9",
+                "Rua da Pamonha",
+                10000000000.0,
+                "lucas@gmail.com",
+                "956784001"
+        );
+
+        Locatario arthur = new Locatario(
+                "L002",
+                "Arthur",
+                19,
+                "123456",
+                "Mora na rua",
+                100000000.0,
+                "arthurzin@gmail.com",
+                "9638494"
+        );
+
+        locatarios.add(lucas);
+        locatarios.add(arthur);
     }
 
     public ArrayList<Imovel> getImoveis()       { return imoveis; }
     public ArrayList<Locatario> getLocatarios() { return locatarios; }
     public ArrayList<Contrato> getContratos()   { return contratos; }
+    public ArrayList<Pessoa> getPessoa() {return pessoa; }
 }

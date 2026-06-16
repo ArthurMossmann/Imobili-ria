@@ -1,6 +1,7 @@
 package Imobiliaria;
 import Imobiliaria.Model.*;
 import Imobiliaria.Service.ImobiliariaService;
+import Imobiliaria.User.Locatario;
 import Imobiliaria.Util.Leitor;
 
 import java.time.LocalDate;
@@ -137,16 +138,35 @@ public class Main {
         service.atualizarValoresImovel(id, aluguel, cond, iptu);
     }
 
+    private static void cadastrarPessoa() {
+        System.out.println("─ Cadastro: Pessoa ─");
+
+        String nome     = Leitor.texto("Nome completo: ");
+        int idade       = Leitor.inteiro("Idade: ");
+        String cpf      = Leitor.texto("CPF: ");
+        String endereco = Leitor.texto("Endereço: ");
+        double renda    = Leitor.decimal("Renda mensal R$: ");
+        String email    = Leitor.texto("E-mail: ");
+        String tel      = Leitor.texto("Telefone: ");
+    }
+
     private static void cadastrarLocatario() {
         System.out.println("─ Cadastro: Locatário ─");
-        String id      = Leitor.texto("ID: ");
-        String nome    = Leitor.texto("Nome completo: ");
-        String cpf     = Leitor.texto("CPF: ");
-        double renda   = Leitor.decimal("Renda mensal R$: ");
-        String email   = Leitor.texto("E-mail: ");
-        String tel     = Leitor.texto("Telefone: ");
 
-        service.adicionarLocatario(new Locatario(id, nome, cpf, renda, email, tel));
+        String id       = Leitor.texto("ID: ");
+        String nome     = Leitor.texto("Nome completo: ");
+        int idade       = Leitor.inteiro("Idade: ");
+        String cpf      = Leitor.texto("CPF: ");
+        String endereco = Leitor.texto("Endereço: ");
+        double renda    = Leitor.decimal("Renda mensal R$: ");
+        String email    = Leitor.texto("E-mail: ");
+        String tel      = Leitor.texto("Telefone: ");
+
+        service.adicionarLocatario(
+                new Locatario(
+                        id, nome, idade, cpf, endereco, renda, email, tel
+                )
+        );
     }
 
     private static void atualizarLocatario() {
