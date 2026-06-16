@@ -14,6 +14,11 @@ public class Locatario extends Pessoa {
         this.statusSocioeconomico = "Regular";
     }
 
+    @Override
+    public String getDescricaoTipo() {
+        return "Locatario Proponente";
+    }
+
     public double getRendaComprovada() {
         return rendaComprovada;
     }
