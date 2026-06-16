@@ -14,6 +14,12 @@ public class Inquilino extends Pessoa {
         this.possuiAnimaisEstimacao = false;
     }
 
+    @Override
+    public String getDescricaoTipo() {
+        return "Cliente Locatário / Inquilino Cadastrado";
+    }
+
+
     public double getValorCaucaoPago() {
         return valorCaucaoPago;
     }
