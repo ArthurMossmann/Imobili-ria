@@ -1,63 +1,39 @@
 package Imobiliaria.Model;
 
-/**
- * Classe abstrata base para todos os tipos de imóveis.
- * RN3: Valida se o imóvel está disponível antes de qualquer operação.
- */
-public abstract class Imovel implements Calculavel {
+public abstract class Imovel {
+    protected String codigo;
+    protected Endereco endereco; // Usando a nossa classe especializada de Endereço
+    protected double valorBaseAluguel;
+    protected boolean disponivel; // Atributo crucial para a Regra de Negócio Obrigatória (RFO) 3
 
-    private String id;
-    private String endereco;
-    private double valorAluguel;
-    private double valorCondominio;
-    private double valorIptu;
-    private boolean disponivel;
-
-    public Imovel(String id, String endereco, double valorAluguel,
-                  double valorCondominio, double valorIptu) {
-        this.id = id;
+    // Construtor do Imóvel - Todo imóvel novo começa como DISPONÍVEL (true)
+    public Imovel(String codigo, Endereco endereco, double valorBaseAluguel) {
+        this.codigo = codigo;
         this.endereco = endereco;
-        this.valorAluguel = valorAluguel;
-        this.valorCondominio = valorCondominio;
-        this.valorIptu = valorIptu;
+        this.valorBaseAluguel = valorBaseAluguel;
         this.disponivel = true;
     }
 
-    // RN1: Soma condomínio + IPTU ao valor do aluguel
-    @Override
-    public double calcularValorTotal() {
-        return valorAluguel + valorCondominio + valorIptu;
+    // MÉTODO ABSTRATO: Cada classe filha (Residencial/Comercial) implementará o seu próprio retorno
+    public abstract String getDescricaoTipo();
+
+    public String getCodigo() {
+        return codigo;
     }
 
-    // Método abstrato — cada subclasse define seu tipo
-    public abstract String getTipo();
-
-    public String getDetalhes() {
-        return String.format(
-                "ID: %s\n " +
-                "Tipo: %s\n" +
-                "Endereço: %s\n" +
-                "Aluguel: R$ %.2f\n" +
-                "Cond.: R$ %.2f\n" +
-                "IPTU: R$ %.2f\n" +
-                "Total mensal: R$ %.2f\n" +
-                "Disponível: %s\n",
-                id, getTipo(), endereco,
-                valorAluguel, valorCondominio, valorIptu,
-                calcularValorTotal(),
-                disponivel ? "Sim" : "Não"
-        );
+    public Endereco getEndereco() {
+        return endereco;
     }
 
-    // Getters e setters
-    public String getId()                     { return id; }
-    public String getEndereco()               { return endereco; }
-    public double getValorAluguel()           { return valorAluguel; }
-    public double getValorCondominio()        { return valorCondominio; }
-    public double getValorIptu()              { return valorIptu; }
-    public boolean isDisponivel()             { return disponivel; }
-    public void setDisponivel(boolean d)      { this.disponivel = d; }
-    public void setValorAluguel(double v)     { this.valorAluguel = v; }
-    public void setValorCondominio(double v)  { this.valorCondominio = v; }
-    public void setValorIptu(double v)        { this.valorIptu = v; }
+    public double getValorBaseAluguel() {
+        return valorBaseAluguel;
+    }
+
+    public boolean isDisponivel() {
+        return disponivel;
+    }
+
+    public void setDisponivel(boolean disponivel) {
+        this.disponivel = disponivel;
+    }
 }

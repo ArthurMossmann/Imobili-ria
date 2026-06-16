@@ -1,199 +1,180 @@
 package Imobiliaria;
+
 import Imobiliaria.Model.*;
 import Imobiliaria.Service.ImobiliariaService;
-import Imobiliaria.User.Locatario;
 import Imobiliaria.Util.Leitor;
-
-import java.time.LocalDate;
+import java.util.Scanner;
 
 public class Main {
-
-    private static final ImobiliariaService service = new ImobiliariaService();
-
     public static void main(String[] args) {
-        service.carregarDadosDemo();
+        ImobiliariaService imobiliariaService = new ImobiliariaService();
+        Scanner leitor = new Scanner(System.in);
+        int opcaoMenu = 0;
 
-        int opcao;
         do {
-            exibirMenu();
-            opcao = Leitor.inteiro("Opção: ");
-            System.out.println();
-            switch (opcao) {
-                case 1  -> menuImoveis();
-                case 2  -> menuLocatarios();
-                case 3  -> menuContratos();
-                case 0  -> System.out.println("Encerrando sistema. Até logo!");
-                default -> System.out.println("Opção inválida.");
+            // DESIGN DO MENU: Interface Gráfica Adaptada para Terminal (CLI Premium)
+            System.out.println("\n\u001B[36m┌────────────────────────────────────────────────────────────────────────┐\u001B[0m");
+            System.out.println("\u001B[36m│\u001B[0m      \u001B[1;33mSISTEMA INTEGRADO DE GESTÃO IMOBILIÁRIA\u001B[0m | \u001B[1;32mENTERPRISE v2.5\u001B[0m       \u001B[36m│\u001B[0m");
+            System.out.println("\u001B[36m├────────────────────────────────────────────────────────────────────────┤\u001B[0m");
+            System.out.println("\u001B[36m│\u001B[0m  \u001B[1;34m[1]\u001B[0m Registrar Novo Locatário Proponente                               \u001B[36m│\u001B[0m");
+            System.out.println("\u001B[36m│\u001B[0m  \u001B[1;34m[2]\u001B[0m Consultar Portfólio de Imóveis e Taxas (RFO 1)                     \u001B[36m│\u001B[0m");
+            System.out.println("\u001B[36m│\u001B[0m  \u001B[1;34m[3]\u001B[0m Emitir Contrato de Locação (RFO 2 e 3)                             \u001B[36m│\u001B[0m");
+            System.out.println("\u001B[36m│\u001B[0m  \u001B[1;34m[4]\u001B[0m Simular Rescisão Contratual por CPF (RFO 4)                        \u001B[36m│\u001B[0m");
+            System.out.println("\u001B[36m│\u001B[0m  \u001B[1;34m[5]\u001B[0m Aplicar Atualização por IGP-M via CPF (RFO 5)                     \u001B[36m│\u001B[0m");
+            System.out.println("\u001B[36m│\u001B[0m  \u001B[1;34m[6]\u001B[0m Painel Estatístico e BI Empresarial (Diretoria)                  \u001B[36m│\u001B[0m");
+            System.out.println("\u001B[36m│\u001B[0m  \u001B[1;34m[7]\u001B[0m Exibir Relatório de Auditoria (Logs de Segurança)                  \u001B[36m│\u001B[0m");
+            System.out.println("\u001B[36m│\u001B[0m  \u001B[1;31m[8]\u001B[0m Encerrar Sessão do Operador                                      \u001B[36m│\u001B[0m");
+            System.out.println("\u001B[36m└────────────────────────────────────────────────────────────────────────┘\u001B[0m");
+            System.out.print("\u001B[1;35m➔ Selecione a operação (ou '0' para cancelar/voltar): \u001B[0m");
+
+            try {
+                opcaoMenu = Integer.parseInt(leitor.nextLine());
+            } catch (NumberFormatException e) {
+                Leitor.exibirMensagemErro("Entrada inválida! Digite apenas o número correspondente à operação.");
+                continue;
             }
-        } while (opcao != 0);
-    }
 
-    private static void exibirMenu() {
-        System.out.println("\n╔══════════════════════════════╗");
-        System.out.println("║      SISTEMA IMOBILIÁRIA     ║");
-        System.out.println("╠══════════════════════════════╣");
-        System.out.println("║  1. Gerenciar Imóveis        ║");
-        System.out.println("║  2. Gerenciar Locatários     ║");
-        System.out.println("║  3. Gerenciar Contratos      ║");
-        System.out.println("║  0. Sair                     ║");
-        System.out.println("╚══════════════════════════════╝");
-    }
+            switch (opcaoMenu) {
+                case 1:
+                    System.out.println("\n\u001B[34m▶ MÓDULO DE CADASTRO DE CLIENTE\u001B[0m (Digite 'sair' a qualquer momento para abortar)");
+                    System.out.print("Nome Completo do Proponente: ");
+                    String nome = leitor.nextLine();
+                    if (nome.equalsIgnoreCase("sair") || nome.equals("0")) { Leitor.exibirMensagemErro("Operação abortada."); break; }
 
-    private static void menuImoveis() {
-        System.out.println("\n── IMÓVEIS ──");
-        System.out.println("1. Listar todos");
-        System.out.println("2. Listar disponíveis");
-        System.out.println("3. Cadastrar residencial");
-        System.out.println("4. Cadastrar comercial");
-        System.out.println("5. Atualizar valores");
-        System.out.println("6. Remover imóvel");
-        int op = Leitor.inteiro("Opção: ");
-        System.out.println();
-        switch (op) {
-            case 1 -> service.listarImoveis();
-            case 2 -> service.listarImoveisDisponiveis();
-            case 3 -> cadastrarResidencial();
-            case 4 -> cadastrarComercial();
-            case 5 -> atualizarImovel();
-            case 6 -> service.removerImovel(Leitor.texto("ID do imóvel: "));
-            default -> System.out.println("Opção inválida.");
-        }
-    }
+                    System.out.print("CPF (apenas números): ");
+                    String cpf = leitor.nextLine();
+                    if (cpf.equalsIgnoreCase("sair") || cpf.equals("0")) { Leitor.exibirMensagemErro("Operação abortada."); break; }
 
-    private static void menuLocatarios() {
-        System.out.println("\n── LOCATÁRIOS ──");
-        System.out.println("1. Listar todos");
-        System.out.println("2. Cadastrar locatário");
-        System.out.println("3. Atualizar dados");
-        System.out.println("4. Remover locatário");
-        int op = Leitor.inteiro("Opção: ");
-        System.out.println();
-        switch (op) {
-            case 1 -> service.listarLocatarios();
-            case 2 -> cadastrarLocatario();
-            case 3 -> atualizarLocatario();
-            case 4 -> service.removerLocatario(Leitor.texto("ID do locatário: "));
-            default -> System.out.println("Opção inválida.");
-        }
-    }
+                    System.out.print("Telefone de Contato: ");
+                    String tel = leitor.nextLine();
+                    if (tel.equalsIgnoreCase("sair") || tel.equals("0")) { Leitor.exibirMensagemErro("Operação abortada."); break; }
 
-    private static void menuContratos() {
-        System.out.println("\n── CONTRATOS ──");
-        System.out.println("1. Listar contratos");
-        System.out.println("2. Criar contrato");
-        System.out.println("3. Rescindir contrato (multa 10%)");
-        System.out.println("4. Aplicar reajuste anual");
-        int op = Leitor.inteiro("Opção: ");
-        System.out.println();
-        switch (op) {
-            case 1 -> service.listarContratos();
-            case 2 -> criarContrato();
-            case 3 -> service.rescindirContrato(Leitor.texto("ID do contrato: "));
-            case 4 -> aplicarReajuste();
-            default -> System.out.println("Opção inválida.");
-        }
-    }
+                    System.out.print("E-mail Corporativo: ");
+                    String email = leitor.nextLine();
+                    if (email.equalsIgnoreCase("sair") || email.equals("0")) { Leitor.exibirMensagemErro("Operação abortada."); break; }
 
-    private static void cadastrarResidencial() {
-        System.out.println("─ Cadastro: Imóvel Residencial ─");
-        String id         = Leitor.texto("ID: ");
-        String endereco   = Leitor.texto("Endereço: ");
-        double aluguel    = Leitor.decimal("Valor aluguel R$: ");
-        double cond       = Leitor.decimal("Condomínio R$: ");
-        double iptu       = Leitor.decimal("IPTU R$: ");
-        int quartos       = Leitor.inteiro("Nº quartos: ");
-        boolean garagem   = Leitor.simNao("Tem garagem?");
-        String bairro     = Leitor.texto("Bairro: ");
-        double area       = Leitor.decimal("Área m²: ");
+                    double renda = 0;
+                    System.out.print("Renda Mensal Comprovada (R$): ");
+                    String rendaInput = leitor.nextLine();
+                    if (rendaInput.equalsIgnoreCase("sair") || rendaInput.equals("0")) { Leitor.exibirMensagemErro("Operação abortada."); break; }
+                    try {
+                        renda = Double.parseDouble(rendaInput);
+                    } catch (NumberFormatException e) {
+                        Leitor.exibirMensagemErro("Erro: Renda inválida. Operação cancelada.");
+                        break;
+                    }
 
-        service.adicionarImovel(new ImovelResidencial(
-                id, endereco, aluguel, cond, iptu,
-                quartos, garagem, bairro, area
-        ));
-    }
+                    imobiliariaService.cadastrarLocatario(new Locatario(nome, cpf, tel, email, renda));
+                    Leitor.exibirMensagemSucesso("Locatário registrado com sucesso no banco de dados.");
+                    break;
 
-    private static void cadastrarComercial() {
-        System.out.println("─ Cadastro: Imóvel Comercial ─");
-        String id          = Leitor.texto("ID: ");
-        String endereco    = Leitor.texto("Endereço: ");
-        double aluguel     = Leitor.decimal("Valor aluguel R$: ");
-        double cond        = Leitor.decimal("Condomínio R$: ");
-        double iptu        = Leitor.decimal("IPTU R$: ");
-        double area        = Leitor.decimal("Área m²: ");
-        String tipoComercio = Leitor.texto("Tipo de comércio: ");
-        boolean estac      = Leitor.simNao("Tem estacionamento?");
-        int salas          = Leitor.inteiro("Nº de salas: ");
+                case 2:
+                    System.out.println("\n\u001B[34m▶ PORTFÓLIO DE IMÓVEIS DISPONÍVEIS\u001B[0m");
+                    for (Imovel i : imobiliariaService.getListaImoveis()) {
+                        double custoTotal = (i instanceof Calculavel) ? ((Calculavel) i).calcularValorTotalAluguel() : i.getValorBaseAluguel();
+                        System.out.println("  ───────────────────────────────────────────────────────────────");
+                        System.out.println("  Ref: " + i.getCodigo() + " | Tipo: " + i.getDescricaoTipo());
+                        System.out.println("  Local: " + i.getEndereco());
+                        System.out.println("  Base: R$ " + i.getValorBaseAluguel() + " | Final (c/ Taxas): R$ " + custoTotal);
+                        System.out.println("  Status: " + (i.isDisponivel() ? "\u001B[32mDISPONÍVEL\u001B[0m" : "\u001B[31mALUGADO\u001B[0m"));
+                    }
+                    System.out.println("  ───────────────────────────────────────────────────────────────");
 
-        service.adicionarImovel(new ImovelComercial(
-                id, endereco, aluguel, cond, iptu,
-                area, tipoComercio, estac, salas
-        ));
-    }
+                    System.out.print("\nPressione ENTER para retornar ao menu principal...");
+                    leitor.nextLine();
+                    break;
 
-    private static void atualizarImovel() {
-        String id      = Leitor.texto("ID do imóvel: ");
-        double aluguel = Leitor.decimal("Novo aluguel R$: ");
-        double cond    = Leitor.decimal("Novo condomínio R$: ");
-        double iptu    = Leitor.decimal("Novo IPTU R$: ");
-        service.atualizarValoresImovel(id, aluguel, cond, iptu);
-    }
+                case 3:
+                    System.out.println("\n\u001B[34m▶ MÓDULO DE EMISSÃO DE CONTRATOS\u001B[0m (Digite 'sair' para cancelar)");
+                    System.out.print("Insira o Código de Referência do Imóvel: ");
+                    String codImovel = leitor.nextLine();
+                    if (codImovel.equalsIgnoreCase("sair") || codImovel.equals("0")) { Leitor.exibirMensagemErro("Operação cancelada."); break; }
 
-    private static void cadastrarPessoa() {
-        System.out.println("─ Cadastro: Pessoa ─");
+                    System.out.print("Insira o CPF do Cliente Proponente: ");
+                    String cpfCliente = leitor.nextLine();
+                    if (cpfCliente.equalsIgnoreCase("sair") || cpfCliente.equals("0")) { Leitor.exibirMensagemErro("Operação cancelada."); break; }
 
-        String nome     = Leitor.texto("Nome completo: ");
-        int idade       = Leitor.inteiro("Idade: ");
-        String cpf      = Leitor.texto("CPF: ");
-        String endereco = Leitor.texto("Endereço: ");
-        double renda    = Leitor.decimal("Renda mensal R$: ");
-        String email    = Leitor.texto("E-mail: ");
-        String tel      = Leitor.texto("Telefone: ");
-    }
+                    String resultadoEmissao = imobiliariaService.emitirContratoLocacao(codImovel, cpfCliente);
+                    if (resultadoEmissao.startsWith("SUCESSO")) {
+                        Leitor.exibirMensagemSucesso(resultadoEmissao);
+                    } else {
+                        Leitor.exibirMensagemErro(resultadoEmissao);
+                    }
+                    break;
 
-    private static void cadastrarLocatario() {
-        System.out.println("─ Cadastro: Locatário ─");
+                case 4:
+                    System.out.println("\n\u001B[34m▶ DEPARTAMENTO JURÍDICO - SIMULAÇÃO DE DISTRATO\u001B[0m");
+                    System.out.print("Informe o CPF do cliente para rescindir o contrato: ");
+                    String cpfRescisao = leitor.nextLine();
+                    if (cpfRescisao.equalsIgnoreCase("sair") || cpfRescisao.equals("0")) { Leitor.exibirMensagemErro("Operação cancelada."); break; }
 
-        String id       = Leitor.texto("ID: ");
-        String nome     = Leitor.texto("Nome completo: ");
-        int idade       = Leitor.inteiro("Idade: ");
-        String cpf      = Leitor.texto("CPF: ");
-        String endereco = Leitor.texto("Endereço: ");
-        double renda    = Leitor.decimal("Renda mensal R$: ");
-        String email    = Leitor.texto("E-mail: ");
-        String tel      = Leitor.texto("Telefone: ");
+                    Contrato contratoAlvoRescisao = imobiliariaService.buscarContratoPorCpf(cpfRescisao);
 
-        service.adicionarLocatario(
-                new Locatario(
-                        id, nome, idade, cpf, endereco, renda, email, tel
-                )
-        );
-    }
+                    if (contratoAlvoRescisao != null) {
+                        double multa = contratoAlvoRescisao.calcularMultaRescisao();
+                        Leitor.exibirMensagemSucesso("Cláusula de rescisão ativada com sucesso!");
+                        System.out.println("-> ID do Contrato rescindido: " + contratoAlvoRescisao.getIdContrato());
+                        System.out.println("-> Titular do Vínculo: " + contratoAlvoRescisao.getLocatario().getNome());
+                        System.out.println("-> Penalidade Aplicada (10% RFO 4): R$ " + multa);
+                    } else {
+                        Leitor.exibirMensagemErro("Nenhum contrato ativo foi localizado para o CPF informado.");
+                    }
+                    break;
 
-    private static void atualizarLocatario() {
-        String id    = Leitor.texto("ID do locatário: ");
-        double renda = Leitor.decimal("Nova renda R$: ");
-        String email = Leitor.texto("Novo e-mail: ");
-        String tel   = Leitor.texto("Novo telefone: ");
-        service.atualizarLocatario(id, renda, email, tel);
-    }
+                case 5:
+                    System.out.println("\n\u001B[34m▶ AJUSTE FINANCEIRO - ATUALIZAÇÃO INFLACIONÁRIA ANUAL\u001B[0m");
+                    System.out.print("Informe o CPF do cliente para aplicar o reajuste: ");
+                    String cpfReajuste = leitor.nextLine();
+                    if (cpfReajuste.equalsIgnoreCase("sair") || cpfReajuste.equals("0")) { Leitor.exibirMensagemErro("Operação cancelada."); break; }
 
-    private static void criarContrato() {
-        System.out.println("─ Novo Contrato ─");
-        String idContrato  = Leitor.texto("ID do contrato: ");
-        String idImovel    = Leitor.texto("ID do imóvel: ");
-        String idLocatario = Leitor.texto("ID do locatário: ");
+                    Contrato contratoAlvoReajuste = imobiliariaService.buscarContratoPorCpf(cpfReajuste);
 
-        System.out.println("Data de início (formato AAAA-MM-DD):");
-        LocalDate inicio   = LocalDate.parse(Leitor.texto("  Início: "));
-        LocalDate fim      = LocalDate.parse(Leitor.texto("  Fim:    "));
-        double reajuste    = Leitor.decimal("Índice reajuste anual (ex: 0.05 para 5%): ");
+                    if (contratoAlvoReajuste != null) {
+                        System.out.print("Informe o índice acumulado do IGP-M (%): ");
+                        String taxaInput = leitor.nextLine();
+                        if (taxaInput.equalsIgnoreCase("sair") || taxaInput.equals("0")) { Leitor.exibirMensagemErro("Operação cancelada."); break; }
 
-        service.criarContrato(idContrato, idImovel, idLocatario, inicio, fim, reajuste);
-    }
+                        double taxaPercentual = 0;
+                        try {
+                            taxaPercentual = Double.parseDouble(taxaInput);
+                        } catch (NumberFormatException e) {
+                            Leitor.exibirMensagemErro("Erro: Taxa inválida. Atualização abortada.");
+                            break;
+                        }
 
-    private static void aplicarReajuste() {
-        String id     = Leitor.texto("ID do contrato: ");
-        double indice = Leitor.decimal("Novo índice (ex: 0.05 = 5%): ");
-        service.aplicarReajuste(id, indice);
+                        double novoValorContrato = contratoAlvoReajuste.aplicarReajusteIgpm(taxaPercentual);
+                        Leitor.exibirMensagemSucesso("Aditivo de reajuste por IGP-M (RFO 5) processado!");
+                        System.out.println("-> Contrato Vinculado: " + contratoAlvoReajuste.getIdContrato());
+                        System.out.println("-> Novo valor mensal recalculado: R$ " + novoValorContrato);
+                    } else {
+                        Leitor.exibirMensagemErro("Nenhum contrato ativo foi localizado para o CPF informado.");
+                    }
+                    break;
+
+                case 6:
+                    imobiliariaService.exibirDashboardEstatistico();
+                    System.out.print("\nPressione ENTER para retornar ao menu principal...");
+                    leitor.nextLine();
+                    break;
+
+                case 7:
+                    System.out.println("\n\u001B[35m▶ TRILHA DE AUDITORIA DE SEGURANÇA (LOGS)\u001B[0m");
+                    for (String log : imobiliariaService.getHistoricoAuditoria()) {
+                        System.out.println("  " + log);
+                    }
+                    System.out.print("\nPressione ENTER para retornar ao menu principal...");
+                    leitor.nextLine();
+                    break;
+
+                case 8:
+                    System.out.println("\n\u001B[33mFinalizando auditoria interna e encerrando sessão de forma segura. Até logo!\u001B[0m");
+                    break;
+
+                default:
+                    Leitor.exibirMensagemErro("Operação desconhecida. Selecione uma opção válida da tabela.");
+            }
+        } while (opcaoMenu != 8);
+
+        leitor.close();
     }
 }

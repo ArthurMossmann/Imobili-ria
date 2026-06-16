@@ -1,43 +1,27 @@
 package Imobiliaria.Model;
 
-public class ImovelComercial extends Imovel {
+public class ImovelComercial extends Imovel implements Calculavel {
+    private double taxaSegurancaEletronica;
+    private double impostoAlvara;
+    private int quantidadeSalas;
+    private boolean possuiAcessibilidade;
 
-    private double areaM2;
-    private String tipoComercio;
-    private boolean temEstacionamento;
-    private int numSalas;
-
-    public ImovelComercial(String id, String endereco, double valorAluguel,
-                           double valorCondominio, double valorIptu,
-                           double areaM2, String tipoComercio,
-                           boolean temEstacionamento, int numSalas) {
-        super(id, endereco, valorAluguel, valorCondominio, valorIptu);
-        this.areaM2 = areaM2;
-        this.tipoComercio = tipoComercio;
-        this.temEstacionamento = temEstacionamento;
-        this.numSalas = numSalas;
+    public ImovelComercial(String codigo, Endereco endereco, double valorBaseAluguel, double taxaSegurancaEletronica, double impostoAlvara) {
+        super(codigo, endereco, valorBaseAluguel); // Envia para o construtor de Imovel
+        this.taxaSegurancaEletronica = taxaSegurancaEletronica;
+        this.impostoAlvara = impostoAlvara;
+        this.quantidadeSalas = 4; // Valor padrão
+        this.possuiAcessibilidade = true; // Valor padrão
     }
 
     @Override
-    public String getTipo() {
+    public String getDescricaoTipo() {
         return "Comercial";
     }
 
     @Override
-    public String getDetalhes() {
-        return super.getDetalhes() + String.format(
-                "\n  Área: %.1f m²\n" +
-                "Tipo comércio: %s\n" +
-                "Estacionamento: %s\n" +
-                "Salas: %d\n",
-                areaM2, tipoComercio, temEstacionamento ? "Sim" : "Não", numSalas
-        );
+    public double calcularValorTotalAluguel() {
+        // Regra para Comercial: Aluguel base + taxa de segurança + alvará
+        return this.valorBaseAluguel + this.taxaSegurancaEletronica + this.impostoAlvara;
     }
-
-    public double getAreaM2()             { return areaM2; }
-    public String getTipoComercio()       { return tipoComercio; }
-    public boolean isTemEstacionamento()  { return temEstacionamento; }
-    public int getNumSalas()              { return numSalas; }
-    public void setTipoComercio(String t) { this.tipoComercio = t; }
-    public void setNumSalas(int n)        { this.numSalas = n; }
 }

@@ -1,229 +1,137 @@
 package Imobiliaria.Service;
 
 import Imobiliaria.Model.*;
-import Imobiliaria.User.Locatario;
-import Imobiliaria.User.Pessoa;
-
-import java.time.LocalDate;
+import Imobiliaria.Util.RendaInsuficienteException;
 import java.util.ArrayList;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class ImobiliariaService {
+    private ArrayList<Imovel> listaImoveis;
+    private ArrayList<Locatario> listaLocatarios;
+    private ArrayList<Vendedor> listaVendedores; // Nova lista
+    private ArrayList<Contrato> listaContratos;
+    private ArrayList<String> historicoAuditoria;
 
-    private ArrayList<Imovel> imoveis = new ArrayList<>();
-    private ArrayList<Locatario> locatarios = new ArrayList<>();
-    private ArrayList<Contrato> contratos = new ArrayList<>();
-    private ArrayList<Pessoa> pessoa = new ArrayList<>();
+    private int geradorIdContrato = 1;
 
-    // IMÓVEIS
-
-    public void adicionarImovel(Imovel imovel) {
-        imoveis.add(imovel);
-        System.out.println("✔ Imóvel [" + imovel.getId() + "] cadastrado com sucesso.");
+    public ImobiliariaService() {
+        this.listaImoveis = new ArrayList<>();
+        this.listaLocatarios = new ArrayList<>();
+        this.listaVendedores = new ArrayList<>();
+        this.listaContratos = new ArrayList<>();
+        this.historicoAuditoria = new ArrayList<>();
+        gerarDadosPreCadastrados();
     }
 
-    public boolean removerImovel(String id) {
-        Imovel i = buscarImovelPorId(id);
-        if (i == null) { System.out.println("✘ Imóvel não encontrado."); return false; }
-        imoveis.remove(i);
-        System.out.println("✔ Imóvel removido.");
-        return true;
+    private void registrarLog(String message) {
+        LocalDateTime agora = LocalDateTime.now();
+        DateTimeFormatter formatador = DateTimeFormatter.ofPattern("dd/06/2026 HH:mm:ss");
+        historicoAuditoria.add("[" + agora.format(formatador) + "] - " + message);
     }
 
-    public void listarImoveis() {
-        if (imoveis.isEmpty()) { System.out.println("Nenhum imóvel cadastrado."); return; }
-        System.out.println("\n════════ IMÓVEIS ════════");
-        for (Imovel i : imoveis) {
-            System.out.println(i.getDetalhes());
-            System.out.println("─────────────────────────");
+    private void gerarDadosPreCadastrados() {
+        Endereco end1 = new Endereco("Av. Paulista", "1500", "Bela Vista", "01311-200");
+        Endereco end2 = new Endereco("Rua Funchal", "418", "Vila Olímpia", "04551-060");
+
+        listaImoveis.add(new ImovelResidencial("R-1", end1, 2000.0, 500.0, 120.0));
+        listaImoveis.add(new ImovelComercial("C-2", end2, 4500.0, 350.0, 250.0));
+
+        listaLocatarios.add(new Locatario("Rodrigo Amaral", "222.333.444-55", "91234-5678", "rodrigo@email.com", 9000.0));
+        listaLocatarios.add(new Locatario("Fernanda Costa", "333.444.555-66", "98765-4321", "fernanda@email.com", 4500.0));
+
+        // Dados de teste para os Vendedores exigidos
+        listaVendedores.add(new Vendedor("Carlos Corretor", "111.222.333-44", "9999-8888", "carlos@imobiliaria.com", "CRECI-12345", 10.0));
+        listaVendedores.add(new Vendedor("Ana Imóveis", "444.555.666-77", "9888-7777", "ana@imobiliaria.com", "CRECI-67890", 12.0));
+
+        registrarLog("Ambiente inicializado com instâncias padrão e corretores credenciados.");
+    }
+
+    public void cadastrarLocatario(Locatario locatario) {
+        listaLocatarios.add(locatario);
+        registrarLog("Locatário registrado com sucesso: " + locatario.getNome());
+    }
+
+    public ArrayList<Imovel> getListaImoveis() { return listaImoveis; }
+    public ArrayList<Contrato> getListaContratos() { return listaContratos; }
+    public ArrayList<String> getHistoricoAuditoria() { return historicoAuditoria; }
+
+    public Imovel buscarImovelPorCodigo(String codigo) {
+        for (Imovel i : listaImoveis) {
+            if (i.getCodigo().equalsIgnoreCase(codigo)) return i;
         }
+        return null;
     }
 
-    public void listarImoveisDisponiveis() {
-        boolean achou = false;
-        System.out.println("\n════════ DISPONÍVEIS ════════");
-        for (Imovel i : imoveis) {
-            if (i.isDisponivel()) {
-                System.out.println(i.getDetalhes());
-                System.out.println("─────────────────────────");
-                achou = true;
+    public Locatario buscarLocatarioPorCpf(String cpf) {
+        for (Locatario l : listaLocatarios) {
+            if (l.getCpf().equals(cpf)) return l;
+        }
+        return null;
+    }
+
+    public Contrato buscarContratoPorCpf(String cpf) {
+        for (Contrato c : listaContratos) {
+            if (c.getLocatario().getCpf().equals(cpf)) return c;
+        }
+        return null;
+    }
+
+    public String emitirContratoLocacao(String codigoImovel, String cpfLocatario) {
+        Imovel imovel = buscarImovelPorCodigo(codigoImovel);
+        Locatario locatario = buscarLocatarioPorCpf(cpfLocatario);
+
+        if (imovel == null) return "Erro: Imóvel não localizado.";
+        if (locatario == null) return "Erro: Locatário não localizado.";
+        if (!imovel.isDisponivel()) return "Erro: Imóvel já alugado.";
+
+        double valorTotalFinal = (imovel instanceof Calculavel) ? ((Calculavel) imovel).calcularValorTotalAluguel() : imovel.getValorBaseAluguel();
+
+        double limiteMinimoRenda = valorTotalFinal * 3;
+        try {
+            if (locatario.getRendaComprovada() < limiteMinimoRenda) {
+                throw new RendaInsuficienteException("Renda insuficiente para critérios de risco.");
             }
-        }
-        if (!achou) System.out.println("Nenhum imóvel disponível.");
-    }
-
-    public Imovel buscarImovelPorId(String id) {
-        for (Imovel i : imoveis) {
-            if (i.getId().equalsIgnoreCase(id)) return i;
-        }
-        return null;
-    }
-
-    public void atualizarValoresImovel(String id, double aluguel, double cond, double iptu) {
-        Imovel i = buscarImovelPorId(id);
-        if (i == null) { System.out.println("✘ Imóvel não encontrado."); return; }
-        i.setValorAluguel(aluguel);
-        i.setValorCondominio(cond);
-        i.setValorIptu(iptu);
-        System.out.printf("✔ Valores atualizados. Novo total: R$ %.2f%n", i.calcularValorTotal());
-    }
-
-    // ─────────────────────────────────────────
-    // LOCATÁRIOS
-    // ─────────────────────────────────────────
-
-    public void adicionarPessoa(Pessoa pes) {
-        pessoa.add(pes);
-        System.out.println("✔ Pessoa [" + pes.getNome() + "] cadastrado com sucesso.");
-    }
-
-    public Pessoa buscarPessoaPorCPF(String cpf) {
-        for (Pessoa p : Pessoa) {
-            if (p.getCPF().equalsIgnoreCase(cpf)) return p;
-        }
-        return null;
-    }
-
-    public boolean removerPessoa(String CPF) {
-        pessoa p = buscarLocatarioPorId()
-    }
-
-    public void adicionarLocatario(Locatario loc) {
-        locatarios.add(loc);
-        System.out.println("✔ Locatário [" + loc.getId() + "] cadastrado com sucesso.");
-    }
-
-    public boolean removerLocatario(String id) {
-        Locatario l = buscarLocatarioPorId(id);
-        if (l == null) { System.out.println("✘ Locatário não encontrado."); return false; }
-        locatarios.remove(l);
-        System.out.println("✔ Locatário removido.");
-        return true;
-    }
-
-    public void listarLocatarios() {
-        if (locatarios.isEmpty()) { System.out.println("Nenhum locatário cadastrado."); return; }
-        System.out.println("\n════════ LOCATÁRIOS ════════");
-        for (Locatario l : locatarios) {
-            System.out.println(l.getDetalhes());
-            System.out.println("─────────────────────────");
-        }
-    }
-
-    public Locatario buscarLocatarioPorId(String id) {
-        for (Locatario l : locatarios) {
-            if (l.getId().equalsIgnoreCase(id)) return l;
-        }
-        return null;
-    }
-
-    public void atualizarLocatario(String id, double novaRenda, String email, String tel) {
-        Locatario l = buscarLocatarioPorId(id);
-        if (l == null) { System.out.println("✘ Locatário não encontrado."); return; }
-        l.setRendaMensal(novaRenda);
-        l.setEmail(email);
-        l.setTelefone(tel);
-        System.out.println("✔ Locatário atualizado.");
-    }
-
-    public boolean criarContrato(String idContrato, String idImovel,
-                                 String idLocatario, LocalDate inicio,
-                                 LocalDate fim, double indiceReajuste) {
-
-        Imovel imovel = buscarImovelPorId(idImovel);
-        Locatario locatario = buscarLocatarioPorId(idLocatario);
-
-        if (imovel == null)    { System.out.println("✘ Imóvel não encontrado."); return false; }
-        if (locatario == null) { System.out.println("✘ Locatário não encontrado."); return false; }
-
-        if (!imovel.isDisponivel()) {
-            System.out.println("✘ [RN3] Imóvel indisponível para locação.");
-            return false;
+        } catch (RendaInsuficienteException e) {
+            registrarLog("CONTRATO BLOQUEADO: Renda de " + locatario.getNome() + " é menor do que 3x o aluguel.");
+            return "Erro Crítico: " + e.getMessage();
         }
 
-        if (!locatario.validarRenda(imovel.getValorAluguel())) {
-            System.out.printf("✘ [RN2] Renda insuficiente. Mínimo exigido: R$ %.2f (3x aluguel).%n",
-                    imovel.getValorAluguel() * 3);
-            return false;
-        }
-
-        Contrato c = new Contrato(idContrato, imovel, locatario, inicio, fim, indiceReajuste);
-        contratos.add(c);
         imovel.setDisponivel(false);
+        String idContratoGerado = "CONTRATO-" + geradorIdContrato++;
 
-        System.out.printf("✔ Contrato criado! Valor total mensal: R$ %.2f%n", imovel.calcularValorTotal());
-        return true;
+        // Pega automaticamente o primeiro corretor da lista para intermediar
+        Vendedor vendedorResponsavel = listaVendedores.get(0);
+
+        Contrato novoContrato = new Contrato(idContratoGerado, imovel, locatario, vendedorResponsavel, valorTotalFinal);
+        listaContratos.add(novoContrato);
+
+        registrarLog("Contrato " + idContratoGerado + " emitido por " + vendedorResponsavel.getNome());
+        return "SUCESSO: " + idContratoGerado + " ativado via Corretor " + vendedorResponsavel.getNome();
     }
 
-    public void rescindirContrato(String idContrato) {
-        Contrato c = buscarContratoPorId(idContrato);
-        if (c == null) { System.out.println("✘ Contrato não encontrado."); return; }
-        if (!c.isAtivo()) { System.out.println("✘ Contrato já está encerrado."); return; }
+    public void exibirDashboardEstatistico() {
+        int totalImoveis = listaImoveis.size();
+        int imoveisLocados = 0;
+        double faturamentoMensalTotal = 0;
+        double totalComissoesPagas = 0;
 
-        double multa = c.calcularMulta();
-        c.encerrarContrato();
-        System.out.printf("✔ [RN4] Contrato rescindido. Multa aplicada: R$ %.2f%n", multa);
-    }
-
-    public void aplicarReajuste(String idContrato, double novoIndice) {
-        Contrato c = buscarContratoPorId(idContrato);
-        if (c == null) { System.out.println("✘ Contrato não encontrado."); return; }
-        if (!c.isAtivo()) { System.out.println("✘ Contrato encerrado."); return; }
-
-        c.setIndiceReajuste(novoIndice);
-        System.out.printf("✔ [RN5] Reajuste de %.1f%% aplicado. Novo valor: R$ %.2f%n",
-                novoIndice * 100, c.calcularValorReajustado());
-    }
-
-    public void listarContratos() {
-        if (contratos.isEmpty()) { System.out.println("Nenhum contrato cadastrado."); return; }
-        System.out.println("\n════════ CONTRATOS ════════");
-        for (Contrato c : contratos) {
-            System.out.println(c.getDetalhes());
-            System.out.println("─────────────────────────");
+        for (Imovel i : listaImoveis) {
+            if (!i.isDisponivel()) imoveisLocados++;
         }
-    }
-
-    public Contrato buscarContratoPorId(String id) {
-        for (Contrato c : contratos) {
-            if (c.getId().equalsIgnoreCase(id)) return c;
+        for (Contrato c : listaContratos) {
+            faturamentoMensalTotal += c.getValorFinalContrato();
+            // Calcula quanto do contrato vai para o corretor com base na comissão dele
+            totalComissoesPagas += c.getValorFinalContrato() * (c.getVendedorResponsavel().getPercentualComissao() / 100);
         }
-        return null;
+
+        System.out.println("\n================= PAINEL DE INDICADORES (BI) =================");
+        System.out.println("-> Volume de Imóveis sob Custódia: " + totalImoveis + " unidades.");
+        System.out.println("-> Carteira de Contratos Ativos: " + listaContratos.size() + " locações.");
+        System.out.println("-> Taxa de Ocupação Patrimonial: " + (totalImoveis > 0 ? (imoveisLocados * 100 / totalImoveis) : 0) + "%");
+        System.out.println("-> Faturamento Bruto Mensal: R$ " + faturamentoMensalTotal);
+        System.out.println("-> Total de Comissões Devidas aos Vendedores: R$ " + totalComissoesPagas);
+        System.out.println("-> Lucro Líquido Retido pela Imobiliária: R$ " + (faturamentoMensalTotal - totalComissoesPagas));
+        System.out.println("===============================================================");
     }
-
-    // ─────────────────────────────────────────
-    // DADOS PRÉ-CADASTRADOS (para demo)
-    // ─────────────────────────────────────────
-
-    public void carregarDadosDemo() {
-
-        Locatario lucas = new Locatario(
-                "L001",
-                "Lucas",
-                19,
-                "9",
-                "Rua da Pamonha",
-                10000000000.0,
-                "lucas@gmail.com",
-                "956784001"
-        );
-
-        Locatario arthur = new Locatario(
-                "L002",
-                "Arthur",
-                19,
-                "123456",
-                "Mora na rua",
-                100000000.0,
-                "arthurzin@gmail.com",
-                "9638494"
-        );
-
-        locatarios.add(lucas);
-        locatarios.add(arthur);
-    }
-
-    public ArrayList<Imovel> getImoveis()       { return imoveis; }
-    public ArrayList<Locatario> getLocatarios() { return locatarios; }
-    public ArrayList<Contrato> getContratos()   { return contratos; }
-    public ArrayList<Pessoa> getPessoa() {return pessoa; }
 }

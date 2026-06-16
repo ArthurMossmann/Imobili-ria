@@ -1,44 +1,27 @@
 package Imobiliaria.Model;
 
-public class ImovelResidencial extends Imovel {
+public class ImovelResidencial extends Imovel implements Calculavel {
+    private double taxaCondominio;
+    private double valorIptu;
+    private int quantidadeQuartos;
+    private boolean possuiVagaGaragem;
 
-    private int numQuartos;
-    private boolean temGaragem;
-    private String bairro;
-    private double areaM2;
-
-    public ImovelResidencial(String id, String endereco, double valorAluguel,
-                             double valorCondominio, double valorIptu,
-                             int numQuartos, boolean temGaragem,
-                             String bairro, double areaM2) {
-        super(id, endereco, valorAluguel, valorCondominio, valorIptu);
-        this.numQuartos = numQuartos;
-        this.temGaragem = temGaragem;
-        this.bairro = bairro;
-        this.areaM2 = areaM2;
+    public ImovelResidencial(String codigo, Endereco endereco, double valorBaseAluguel, double taxaCondominio, double valorIptu) {
+        super(codigo, endereco, valorBaseAluguel); // Envia para o construtor de Imovel
+        this.taxaCondominio = taxaCondominio;
+        this.valorIptu = valorIptu;
+        this.quantidadeQuartos = 2; // Valor padrão
+        this.possuiVagaGaragem = true; // Valor padrão
     }
 
     @Override
-    public String getTipo() {
+    public String getDescricaoTipo() {
         return "Residencial";
     }
 
     @Override
-    public String getDetalhes() {
-        return super.getDetalhes() + String.format(
-                "\n  Quartos: %d\n" +
-                "Garagem: %s\n" +
-                "Bairro: %s\n" +
-                "Área: %.1f m²\n",
-                numQuartos, temGaragem ? "Sim" : "Não", bairro, areaM2
-        );
+    public double calcularValorTotalAluguel() {
+        // Regra: Somar taxa de condomínio e IPTU ao valor do aluguel
+        return this.valorBaseAluguel + this.taxaCondominio + this.valorIptu;
     }
-
-    public int getNumQuartos()     { return numQuartos; }
-    public boolean isTemGaragem()  { return temGaragem; }
-    public String getBairro()      { return bairro; }
-    public double getAreaM2()      { return areaM2; }
-    public void setNumQuartos(int n)       { this.numQuartos = n; }
-    public void setTemGaragem(boolean t)   { this.temGaragem = t; }
 }
-
